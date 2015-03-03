@@ -30,7 +30,7 @@ def Field(name, length):
     else:
         return StaticField(name, length)
 
-def BitField(name, length, swapped = False, signed = False, bytesize = 8):
+def BitField(name, length, swapped = False, signed_value = False, bytesize = 8):
     r"""
     BitFields, as the name suggests, are fields that operate on raw, unaligned
     bits, and therefore must be enclosed in a BitStruct. Using them is very
@@ -71,7 +71,7 @@ def BitField(name, length, swapped = False, signed = False, bytesize = 8):
     return BitIntegerAdapter(Field(name, length),
         length,
         swapped=swapped,
-        signed=signed,
+        signed_value=signed_value,
         bytesize=bytesize
     )
 

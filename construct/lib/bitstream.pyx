@@ -1,4 +1,3 @@
-import six
 from construct.lib.binary import encode_bin, decode_bin
 
 try:
@@ -12,7 +11,7 @@ class BitStreamReader(object):
     def __init__(self, substream):
         self.substream = substream
         self.total_size = 0
-        self.buffer = six.b("")
+        self.buffer = ""
 
     def close(self):
         if self.total_size % 8 != 0:
@@ -23,7 +22,7 @@ class BitStreamReader(object):
         return self.substream.tell()
 
     def seek(self, pos, whence = 0):
-        self.buffer = six.b("")
+        self.buffer = ""
         self.total_size = 0
         self.substream.seek(pos, whence)
 
@@ -33,7 +32,7 @@ class BitStreamReader(object):
 
         l = len(self.buffer)
         if count == 0:
-            data = six.b("")
+            data = ""
         elif count <= l:
             data = self.buffer[:count]
             self.buffer = self.buffer[count:]
@@ -49,6 +48,7 @@ class BitStreamReader(object):
         self.total_size += len(data)
         return data
 
+
 class BitStreamWriter(object):
     __slots__ = ["substream", "buffer", "pos"]
 
@@ -61,7 +61,7 @@ class BitStreamWriter(object):
         self.flush()
 
     def flush(self):
-        raw = decode_bin(six.b("").join(self.buffer))
+        raw = decode_bin("".join(self.buffer))
         self.substream.write(raw)
         self.buffer = []
         self.pos = 0

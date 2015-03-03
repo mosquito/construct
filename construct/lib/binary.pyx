@@ -1,6 +1,7 @@
 # encoding: utf-8
 
-def int_to_bin(number, width = 32):
+
+def int_to_bin(number, width=32):
     r"""
     Convert an integer into its binary representation in a bytes object.
     Width is the amount of bits to generate. If width is larger than the actual
@@ -26,7 +27,9 @@ def int_to_bin(number, width = 32):
     return "".join(bits)
 
 # heavily optimized for performance
-def bin_to_int(bits, signed_value = False):
+
+
+def bin_to_int(bits, signed_value=False):
     r"""
     Logical opposite of int_to_bin. Both '0' and '\x00' are considered zero,
     and both '1' and '\x01' are considered one. Set sign to True to interpret
@@ -50,6 +53,7 @@ for i in range(256):
     _char_to_bin[i] = bin
     _bin_to_char[bin] = ch
 
+
 def encode_bin(data):
     """
     Create a binary representation of the given b'' object. Assume 8-bit
@@ -60,6 +64,7 @@ def encode_bin(data):
     """
     return "".join(_char_to_bin[ord(ch)] for ch in data)
 
+
 def decode_bin(data):
     if len(data) & 7:
         raise ValueError("Data length must be a multiple of 8")
@@ -68,10 +73,11 @@ def decode_bin(data):
     l = len(data) // 8
     chars = [""] * l
     while j < l:
-        chars[j] = _bin_to_char[data[i:i+8]]
+        chars[j] = _bin_to_char[data[i:i + 8]]
         i += 8
         j += 1
     return "".join(chars)
+
 
 def swap_bytes(bits, bytesize=8):
     r"""
@@ -86,7 +92,7 @@ def swap_bytes(bits, bytesize=8):
     output = [""] * ((l // bytesize) + 1)
     j = len(output) - 1
     while i < l:
-        output[j] = bits[i : i + bytesize]
+        output[j] = bits[i: i + bytesize]
         i += bytesize
         j -= 1
     return "".join(output)

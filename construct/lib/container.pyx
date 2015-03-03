@@ -35,12 +35,12 @@ class Container(dict):
             raise AttributeError(name)
     def __setitem__(self, key, val):
         if key not in self:
-            self.__keys_order__.append(key)    
+            self.__keys_order__.append(key)
         dict.__setitem__(self, key, val)
     def __delitem__(self, key):
         dict.__delitem__(self, key)
         self.__keys_order__.remove(key)
-    
+
     __delattr__ = __delitem__
     __setattr__ = __setitem__
 
@@ -129,7 +129,7 @@ class FlagsContainer(Container):
             return "%s()" % (self.__class__.__name__,)
         attrs.insert(0, self.__class__.__name__+ ":")
         return "\n".join(attrs)
-     
+
 
 class ListContainer(list):
     """
@@ -218,7 +218,7 @@ if __name__ == "__main__":
     c.z = 9
     c.w = 10
     c.foo = 5
-    
+
     print (c)
 
 

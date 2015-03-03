@@ -15,12 +15,16 @@ except NameError:
 #===============================================================================
 class BitIntegerError(AdaptationError):
     pass
+
 class MappingError(AdaptationError):
     pass
+
 class ConstError(AdaptationError):
     pass
+
 class ValidationError(AdaptationError):
     pass
+
 class PaddingError(AdaptationError):
     pass
 
@@ -42,13 +46,14 @@ class BitIntegerAdapter(Adapter):
                      default is 8.
     """
     __slots__ = ["width", "swapped", "signed", "bytesize"]
-    def __init__(self, subcon, width, swapped = False, signed = False,
+    def __init__(self, subcon, width, swapped=False, signed_value=False,
                  bytesize = 8):
         Adapter.__init__(self, subcon)
         self.width = width
         self.swapped = swapped
-        self.signed = signed
+        self.signed = signed_value
         self.bytesize = bytesize
+
     def _encode(self, obj, context):
         if obj < 0 and not self.signed:
             raise BitIntegerError("object is negative, but field is not signed",
@@ -57,10 +62,12 @@ class BitIntegerAdapter(Adapter):
         if self.swapped:
             obj2 = swap_bytes(obj2, bytesize = self.bytesize)
         return obj2
+
     def _decode(self, obj, context):
         if self.swapped:
             obj = swap_bytes(obj, bytesize = self.bytesize)
-        return bin_to_int(obj, signed = self.signed)
+        return bin_to_int(obj, signed_value=self.signed)
+
 
 class MappingAdapter(Adapter):
     """

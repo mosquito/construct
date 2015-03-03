@@ -48,7 +48,8 @@ setup(
     author="Tomer Filiba, Corbin Simpson",
     author_email="tomerfiliba@gmail.com, MostAwesomeDude@gmail.com",
     provides=["construct"],
-    setup_requires=['cython'],
+    build_requires=['cython'],
+    install_requires=['cython', 'six'],
     keywords="construct, declarative, data structure, binary, parser, builder, pack, unpack",
     classifiers=[
         "Development Status :: 5 - Production/Stable",

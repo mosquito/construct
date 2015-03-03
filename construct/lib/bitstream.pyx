@@ -5,6 +5,7 @@ try:
 except NameError:
     bytes = str
 
+
 class BitStreamReader(object):
     __slots__ = ["substream", "buffer", "total_size"]
 
@@ -16,12 +17,12 @@ class BitStreamReader(object):
     def close(self):
         if self.total_size % 8 != 0:
             raise ValueError("total size of read data must be a multiple of 8",
-                self.total_size)
+                             self.total_size)
 
     def tell(self):
         return self.substream.tell()
 
-    def seek(self, pos, whence = 0):
+    def seek(self, pos, whence=0):
         self.buffer = ""
         self.total_size = 0
         self.substream.seek(pos, whence)
@@ -69,7 +70,7 @@ class BitStreamWriter(object):
     def tell(self):
         return self.substream.tell() + self.pos // 8
 
-    def seek(self, pos, whence = 0):
+    def seek(self, pos, whence=0):
         self.flush()
         self.substream.seek(pos, whence)
 

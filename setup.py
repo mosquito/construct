@@ -9,24 +9,24 @@ HERE = os.path.dirname(__file__)
 exec(open(os.path.join(HERE, "construct", "version.py")).read())
 
 extensions = cythonize([
-  Extension("construct.adapters", ["construct/adapters.pyx"]),
-  Extension("construct.core", ["construct/core.pyx"]),
-  Extension("construct.macros", ["construct/macros.pyx"]),
-  Extension("construct.debug", ["construct/debug.pyx"]),
-  Extension("construct.lib.binary", ["construct/lib/binary.pyx"]),
-  Extension("construct.lib.bitstream", ["construct/lib/bitstream.pyx"]),
-  Extension("construct.lib.container", ["construct/lib/container.pyx"]),
-  Extension("construct.lib.expr", ["construct/lib/expr.pyx"]),
-  Extension("construct.lib.hex", ["construct/lib/hex.pyx"]),
-  Extension("construct.lib.py3compat", ["construct/lib/py3compat.pyx"]),
+    Extension("construct.adapters", ["construct/adapters.pyx"]),
+    Extension("construct.core", ["construct/core.pyx"]),
+    Extension("construct.macros", ["construct/macros.pyx"]),
+    Extension("construct.debug", ["construct/debug.pyx"]),
+    Extension("construct.lib.binary", ["construct/lib/binary.pyx"]),
+    Extension("construct.lib.bitstream", ["construct/lib/bitstream.pyx"]),
+    Extension("construct.lib.container", ["construct/lib/container.pyx"]),
+    Extension("construct.lib.expr", ["construct/lib/expr.pyx"]),
+    Extension("construct.lib.hex", ["construct/lib/hex.pyx"]),
+    Extension("construct.lib.py3compat", ["construct/lib/py3compat.pyx"]),
 ], force=True)
 
 
 setup(
-    name = "construct",
-    ext_modules = extensions,
-    version = "2.5.2",
-    packages = [
+    name="construct",
+    ext_modules=extensions,
+    version="2.5.2",
+    packages=[
         'construct',
         'construct.lib',
         'construct.formats',
@@ -40,16 +40,17 @@ setup(
         'construct.protocols.layer3',
         'construct.protocols.layer4',
     ],
-    license = "MIT",
-    description = "A powerful declarative parser/builder for binary data",
-    long_description = open(os.path.join(HERE, "README.rst")).read(),
-    platforms = ["POSIX", "Windows"],
-    url = "http://construct.readthedocs.org",
-    author = "Tomer Filiba, Corbin Simpson",
-    author_email = "tomerfiliba@gmail.com, MostAwesomeDude@gmail.com",
-    provides = ["construct"],
-    keywords = "construct, declarative, data structure, binary, parser, builder, pack, unpack",
-    classifiers = [
+    license="MIT",
+    description="A powerful declarative parser/builder for binary data",
+    long_description=open(os.path.join(HERE, "README.rst")).read(),
+    platforms=["POSIX", "Windows"],
+    url="http://construct.readthedocs.org",
+    author="Tomer Filiba, Corbin Simpson",
+    author_email="tomerfiliba@gmail.com, MostAwesomeDude@gmail.com",
+    provides=["construct"],
+    setup_requires=['cython']
+    keywords="construct, declarative, data structure, binary, parser, builder, pack, unpack",
+    classifiers=[
         "Development Status :: 5 - Production/Stable",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 2.7",

@@ -1,6 +1,16 @@
 """
 Various containers.
 """
+from cyordereddict import OrderedDict
+
+class Container(OrderedDict):
+     delattr = OrderedDict.__delitem__
+     setattr = OrderedDict.__setitem__
+     def getattr(self, name):
+         try:
+             return self[name]
+         except KeyError:
+             raise AttributeError(name)
 
 def recursion_lock(retval, lock_name = "__recursion_lock__"):
     def decorator(func):
@@ -16,7 +26,7 @@ def recursion_lock(retval, lock_name = "__recursion_lock__"):
         return wrapper
     return decorator
 
-class Container(dict):
+class __Container(dict):
     """
     A generic container of attributes.
 

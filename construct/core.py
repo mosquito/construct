@@ -1,3 +1,5 @@
+# cython: profile=True
+# cython: linetrace=True
 from struct import Struct as Packer
 
 from construct.lib.py3compat import BytesIO, advance_iterator, bchr

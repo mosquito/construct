@@ -4,9 +4,9 @@ Various containers.
 from cyordereddict import OrderedDict
 
 class Container(OrderedDict):
-     delattr = OrderedDict.__delitem__
-     setattr = OrderedDict.__setitem__
-     def getattr(self, name):
+     __delattr__ = OrderedDict.__delitem__
+     __setattr__ = OrderedDict.__setitem__
+     def __getattr__(self, name):
          try:
              return self[name]
          except KeyError:

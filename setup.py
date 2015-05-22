@@ -49,7 +49,7 @@ setup(
     author_email="tomerfiliba@gmail.com, MostAwesomeDude@gmail.com",
     provides=["construct"],
     build_requires=['cython'],
-    install_requires=['cython', 'six'],
+    install_requires=['cython', 'six', 'cyordereddict'],
     keywords="construct, declarative, data structure, binary, parser, builder, pack, unpack",
     classifiers=[
         "Development Status :: 5 - Production/Stable",

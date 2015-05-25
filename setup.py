@@ -23,7 +23,7 @@ exec(open(os.path.join(HERE, "construct", "version.py")).read())
 
 extensions = cythonize([
     Extension("construct.adapters", ["construct/adapters.pyx"]),
-    #Extension("construct.core", ["construct/core.pyx"], extra_compile_args=['-DCYTHON_TRACE=1']),
+    Extension("construct.core", ["construct/core.pyx"], extra_compile_args=['-DCYTHON_TRACE=1']),
     Extension("construct.macros", ["construct/macros.pyx"]),
     Extension("construct.debug", ["construct/debug.pyx"]),
     Extension("construct.lib.binary", ["construct/lib/binary.pyx"]),

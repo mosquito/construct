@@ -8,18 +8,6 @@ from distutils.core import setup
 HERE = os.path.dirname(__file__)
 exec(open(os.path.join(HERE, "construct", "version.py")).read())
 
-#extensions = cythonize([
-#    Extension("construct.adapters", ["construct/adapters.pyx"], extra_compile_args=['-pg'], extra_link_args = ['-pg']),
-#    Extension("construct.core", ["construct/core.pyx"], extra_compile_args=['-pg'], extra_link_args = ['-pg']),
-#    Extension("construct.macros", ["construct/macros.pyx"], extra_compile_args=['-pg'], extra_link_args = ['-pg']),
-#    Extension("construct.debug", ["construct/debug.pyx"], extra_compile_args=['-pg'], extra_link_args = ['-pg']),
-#    Extension("construct.lib.binary", ["construct/lib/binary.pyx"], extra_compile_args=['-pg'], extra_link_args = ['-pg']),
-#    Extension("construct.lib.bitstream", ["construct/lib/bitstream.pyx"], extra_compile_args=['-pg'], extra_link_args = ['-pg']),
-#    Extension("construct.lib.container", ["construct/lib/container.pyx"], extra_compile_args=['-pg'], extra_link_args = ['-pg']),
-#    Extension("construct.lib.expr", ["construct/lib/expr.pyx"], extra_compile_args=['-pg'], extra_link_args = ['-pg']),
-#    Extension("construct.lib.hex", ["construct/lib/hex.pyx"], extra_compile_args=['-pg'], extra_link_args = ['-pg']),
-#    Extension("construct.lib.py3compat", ["construct/lib/py3compat.pyx"], extra_compile_args=['-pg'], extra_link_args = ['-pg']),
-#], force=True, emit_linenums=True)
 
 extensions = cythonize([
     Extension("construct.adapters", ["construct/adapters.pyx"]),

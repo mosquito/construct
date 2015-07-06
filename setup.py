@@ -25,7 +25,7 @@ extensions = cythonize([
 setup(
     name="cython-construct",
     ext_modules=extensions,
-    version="2.5.2",
+    version=version_string,
     packages=[
         'construct',
         'construct.lib',

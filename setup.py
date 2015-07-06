@@ -23,7 +23,7 @@ extensions = cythonize([
 ], force=True, emit_linenums=True)
 
 setup(
-    name="construct",
+    name="cython-construct",
     ext_modules=extensions,
     version="2.5.2",
     packages=[

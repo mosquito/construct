@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 import os
+from setuptools import setup, Extension
 from Cython.Build import cythonize
-from distutils.extension import Extension
 
-from distutils.core import setup
 
 HERE = os.path.dirname(__file__)
 exec(open(os.path.join(HERE, "construct", "version.py")).read())
-
 
 extensions = cythonize([
     Extension("construct.adapters", ["construct/adapters.pyx"]),
@@ -21,6 +19,7 @@ extensions = cythonize([
     Extension("construct.lib.hex", ["construct/lib/hex.pyx"]),
     Extension("construct.lib.py3compat", ["construct/lib/py3compat.pyx"]),
 ], force=True, emit_linenums=True)
+
 
 setup(
     name="cython-construct",

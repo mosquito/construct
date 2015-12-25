@@ -1,6 +1,13 @@
-import cStringIO
+import sys
 
-StringIO = BytesIO = cStringIO.StringIO
+PY2 = sys.version_info < (3,)
+
+if PY2:
+    import cStringIO
+    StringIO = BytesIO = cStringIO.StringIO
+else:
+    from io import StringIO, BytesIO
+
 
 int2byte = chr
 byte2int = ord

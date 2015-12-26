@@ -1,12 +1,13 @@
 """
 Various containers.
 """
-from cyordereddict import OrderedDict
+from cpython cimport dict
+from python_version cimport PY_MAJOR_VERSION
 
 
-class Container(OrderedDict):
-    __delattr__ = OrderedDict.__delitem__
-    __setattr__ = OrderedDict.__setitem__
+class Container(dict):
+    __delattr__ = dict.__delitem__
+    __setattr__ = dict.__setitem__
 
     def __getattr__(self, name):
         try:
@@ -27,6 +28,11 @@ class Container(OrderedDict):
         inst = self.__class__()
         inst.update(self.iteritems())
         return inst
+
+    if PY_MAJOR_VERSION > 2:
+        iteritems = dict.items
+        iterkeys = dict.keys
+        itervalues = dict.values
 
     __update__ = update
     __copy__ = copy

@@ -1,25 +1,40 @@
 #!/usr/bin/env python
 import os
 from setuptools import setup, Extension
-from Cython.Build import cythonize
 
 
 HERE = os.path.dirname(__file__)
 exec(open(os.path.join(HERE, "construct", "version.py")).read())
 
-extensions = cythonize([
-    Extension("construct.adapters", ["construct/adapters.pyx"]),
-    Extension("construct.core", ["construct/core.pyx"], extra_compile_args=['-DCYTHON_TRACE=1']),
-    Extension("construct.macros", ["construct/macros.pyx"]),
-    Extension("construct.debug", ["construct/debug.pyx"]),
-    Extension("construct.lib.binary", ["construct/lib/binary.pyx"]),
-    Extension("construct.lib.bitstream", ["construct/lib/bitstream.pyx"]),
-    Extension("construct.lib.container", ["construct/lib/container.pyx"]),
-    Extension("construct.lib.expr", ["construct/lib/expr.pyx"]),
-    Extension("construct.lib.hex", ["construct/lib/hex.pyx"]),
-    Extension("construct.lib.py3compat", ["construct/lib/py3compat.pyx"]),
-], force=True, emit_linenums=True)
+try:
+    from Cython.Build import cythonize
 
+    extensions = cythonize([
+        Extension("construct.adapters", ["construct/adapters.pyx"]),
+        Extension("construct.core", ["construct/core.pyx"], extra_compile_args=['-DCYTHON_TRACE=1']),
+        Extension("construct.macros", ["construct/macros.pyx"]),
+        Extension("construct.debug", ["construct/debug.pyx"]),
+        Extension("construct.lib.binary", ["construct/lib/binary.pyx"]),
+        Extension("construct.lib.bitstream", ["construct/lib/bitstream.pyx"]),
+        Extension("construct.lib.container", ["construct/lib/container.pyx"]),
+        Extension("construct.lib.expr", ["construct/lib/expr.pyx"]),
+        Extension("construct.lib.hex", ["construct/lib/hex.pyx"]),
+        Extension("construct.lib.py3compat", ["construct/lib/py3compat.pyx"]),
+    ], force=True, emit_linenums=True)
+
+except ImportError:
+    extensions = [
+        Extension("construct.adapters", ["construct/adapters.c"]),
+        Extension("construct.core", ["construct/core.c"], extra_compile_args=['-DCYTHON_TRACE=1']),
+        Extension("construct.macros", ["construct/macros.c"]),
+        Extension("construct.debug", ["construct/debug.c"]),
+        Extension("construct.lib.binary", ["construct/lib/binary.c"]),
+        Extension("construct.lib.bitstream", ["construct/lib/bitstream.c"]),
+        Extension("construct.lib.container", ["construct/lib/container.c"]),
+        Extension("construct.lib.expr", ["construct/lib/expr.c"]),
+        Extension("construct.lib.hex", ["construct/lib/hex.c"]),
+        Extension("construct.lib.py3compat", ["construct/lib/py3compat.c"]),
+    ]
 
 setup(
     name="cython-construct",
@@ -48,7 +63,7 @@ setup(
     author_email="tomerfiliba@gmail.com, MostAwesomeDude@gmail.com",
     provides=["construct"],
     build_requires=['cython'],
-    install_requires=['cython', 'six', 'cyordereddict'],
+    install_requires=['cython', 'six'],
     keywords="construct, declarative, data structure, binary, parser, builder, pack, unpack",
     classifiers=[
         "Development Status :: 5 - Production/Stable",

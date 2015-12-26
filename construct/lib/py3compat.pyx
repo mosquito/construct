@@ -1,8 +1,8 @@
-import sys
+from python_version cimport PY_MAJOR_VERSION
+#from cpython cimport int as cint, str, bool, bytes as cbytes
 
-PY2 = sys.version_info < (3,)
 
-if PY2:
+if PY_MAJOR_VERSION < 3:
     import cStringIO
     StringIO = BytesIO = cStringIO.StringIO
 else:
@@ -35,4 +35,4 @@ def decodebytes(b, encoding):
 
 
 def advance_iterator(it):
-    return it.next()
+    return next(it)

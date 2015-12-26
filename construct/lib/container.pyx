@@ -1,14 +1,14 @@
 """
 Various containers.
 """
-from cyordereddict import OrderedDict
+from cpython cimport str
 
 
-class Container(OrderedDict):
-    __delattr__ = OrderedDict.__delitem__
-    __setattr__ = OrderedDict.__setitem__
+class Container(dict):
+    __delattr__ = dict.__delitem__
+    __setattr__ = dict.__setitem__
 
-    def __getattr__(self, name):
+    def __getattr__(self, str name):
         try:
             return self[name]
         except KeyError:
@@ -27,6 +27,15 @@ class Container(OrderedDict):
         inst = self.__class__()
         inst.update(self.iteritems())
         return inst
+
+    def iteritems(self):
+        return getattr(dict, 'iteritems', dict.items)(self)
+
+    def iterkeys(self):
+        return getattr(dict, 'iterkeys', dict.keys)(self)
+
+    def itervalues(self):
+        return getattr(dict, 'itervalues', dict.values)(self)
 
     __update__ = update
     __copy__ = copy

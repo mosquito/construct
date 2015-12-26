@@ -1,8 +1,8 @@
 import base64
-import six
+from construct.lib.py3compat import b
 
 
-data = six.b("""
+data = b("""
 c25vb3AAAAAAAAACAAAABAAAAFYAAABWAAAAcAAAAAA2UPLfAA2DDAAGKSEiuwgAIJJtoQgARRAA
 SMDnQAD/Bq7ogW8FKYFvA8gAFgWxhAqySjnH6a2AGCeY89oAAAEBCAoCtYleNrAdPwAAAAqID9h8
 +c0lgVR5zdEwPj1cAAAAAABWAAAAVgAAAHAAAAAANlDy3wANy/oABikhIrsIACCSbaEIAEUQAEjA

@@ -1,12 +1,14 @@
-import six
-from construct.lib.py3compat import int2byte
-from construct.lib import (BitStreamReader, BitStreamWriter, encode_bin, decode_bin)
-from construct.core import (Struct, MetaField, StaticField, FormatField,
+from .lib.py3compat import int2byte, b
+from .lib import (BitStreamReader, BitStreamWriter, encode_bin, decode_bin)
+from .core import (Struct, MetaField, StaticField, FormatField,
                             OnDemand, Pointer, Switch, Value, RepeatUntil, MetaArray, Sequence, Range,
                             Select, Pass, SizeofError, Buffered, Restream, Reconfig)
-from construct.adapters import (BitIntegerAdapter, PaddingAdapter,
+from .adapters import (BitIntegerAdapter, PaddingAdapter,
                                 ConstAdapter, CStringAdapter, LengthValueAdapter, IndexingAdapter,
                                 PaddedStringAdapter, FlagsAdapter, StringAdapter, MappingAdapter)
+
+from cpython cimport bool, int, bytes
+
 try:
     from sys import maxsize
 except ImportError:
@@ -16,7 +18,7 @@ except ImportError:
 #===============================================================================
 # fields
 #===============================================================================
-def Field(name, length):
+def Field(str name, length):
     """
     A field consisting of a specified number of bytes.
 
@@ -31,7 +33,7 @@ def Field(name, length):
         return StaticField(name, length)
 
 
-def BitField(name, length, swapped=False, signed_value=False, bytesize=8):
+def BitField(str name, length, bool swapped=False, bool signed_value=False, int bytesize=8):
     r"""
     BitFields, as the name suggests, are fields that operate on raw, unaligned
     bits, and therefore must be enclosed in a BitStruct. Using them is very
@@ -77,7 +79,7 @@ def BitField(name, length, swapped=False, signed_value=False, bytesize=8):
                              )
 
 
-def Padding(length, pattern=six.b("\x00"), strict=False):
+def Padding(length, pattern=b("\x00"), bool strict=False):
     r"""A padding field (value is discarded)
 
     :param length: the length of the field. the length can be either an integer,
@@ -86,10 +88,11 @@ def Padding(length, pattern=six.b("\x00"), strict=False):
     :param strict: whether or not to raise an exception is the actual padding
                    pattern mismatches the desired pattern. default is False.
     """
-    return PaddingAdapter(Field(None, length),
-                          pattern=pattern,
-                          strict=strict,
-                          )
+    return PaddingAdapter(
+        Field(None, length),
+        pattern=pattern,
+        strict=strict,
+    )
 
 
 def Flag(name, truth=1, falsehood=0, default=False):
@@ -111,10 +114,14 @@ def Flag(name, truth=1, falsehood=0, default=False):
     :param default: default value (default False)
     """
 
-    return SymmetricMapping(Field(name, 1),
-                            {True: int2byte(truth), False: int2byte(falsehood)},
-                            default=default,
-                            )
+    return SymmetricMapping(
+        Field(name, 1),
+        {
+            True: int2byte(truth),
+            False: int2byte(falsehood)
+        },
+        default=default,
+    )
 
 #===============================================================================
 # field shortcuts
@@ -434,7 +441,7 @@ def Bitwise(subcon):
     return con
 
 
-def Aligned(subcon, modulus=4, pattern=six.b("\x00")):
+def Aligned(subcon, modulus=4, pattern=b("\x00")):
     r"""Aligns subcon to modulus boundary using padding pattern
 
     :param subcon: the subcon to align
@@ -648,7 +655,7 @@ def PascalString(name, length_field=UBInt8("length"), encoding=None):
     )
 
 
-def CString(name, terminators=six.b("\x00"), encoding=None,
+def CString(name, terminators=b("\x00"), encoding=None,
             char_field=Field(None, 1)):
     r"""
     A string ending in a terminator.

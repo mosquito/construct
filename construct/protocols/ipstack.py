@@ -10,8 +10,9 @@ from construct.protocols.layer3.ipv4 import ipv4_header
 from construct.protocols.layer3.ipv6 import ipv6_header
 from construct.protocols.layer4.tcp import tcp_header
 from construct.protocols.layer4.udp import udp_header
+from construct.lib.py3compat import b
 from binascii import unhexlify
-import six
+
 
 
 layer4_tcp = Struct("layer4_tcp",
@@ -63,7 +64,7 @@ ip_stack = Rename("ip_stack", layer2_ethernet)
 
 
 if __name__ == "__main__":
-    cap1 = unhexlify(six.b(
+    cap1 = unhexlify(b(
     "0011508c283c001150886b570800450001e971474000800684e4c0a80202525eedda11"
     "2a0050d98ec61d54fe977d501844705dcc0000474554202f20485454502f312e310d0a"
     "486f73743a207777772e707974686f6e2e6f72670d0a557365722d4167656e743a204d"
@@ -81,7 +82,7 @@ if __name__ == "__main__":
     "206e6f2d63616368650d0a0d0a"
     ))
 
-    cap2 = unhexlify(six.b(
+    cap2 = unhexlify(b(
     "0002e3426009001150f2c280080045900598fd22000036063291d149baeec0a8023c00"
     "500cc33b8aa7dcc4e588065010ffffcecd0000485454502f312e3120323030204f4b0d"
     "0a446174653a204672692c2031352044656320323030362032313a32363a323520474d"

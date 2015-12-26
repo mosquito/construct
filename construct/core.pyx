@@ -1,40 +1,55 @@
 # cython: profile=True
 # cython: linetrace=True
+from cpython cimport dict, bytes
+
 from struct import Struct as Packer
-
-from construct.lib.py3compat import BytesIO, advance_iterator, bchr
-from construct.lib import Container, ListContainer, LazyContainer
+from .lib.py3compat import BytesIO, advance_iterator, bchr, string_types
+from .lib import Container, ListContainer, LazyContainer
 import sys
-import six
 
-try:
-    bytes
-except NameError:
-    bytes = str
 
 #===============================================================================
 # exceptions
 #===============================================================================
 class ConstructError(Exception):
     pass
+
+
 class FieldError(ConstructError):
     pass
+
+
 class SizeofError(ConstructError):
     pass
+
+
 class AdaptationError(ConstructError):
     pass
+
+
 class ArrayError(ConstructError):
     pass
+
+
 class RangeError(ConstructError):
     pass
+
+
 class SwitchError(ConstructError):
     pass
+
+
 class SelectError(ConstructError):
     pass
+
+
 class TerminatorError(ConstructError):
     pass
+
+
 class OverwriteError(ValueError):
     pass
+
 
 #===============================================================================
 # abstract constructs
@@ -94,25 +109,27 @@ class Construct(object):
     the context for each iteration, which is necessary for OnDemand parsing.
     """
 
-    FLAG_COPY_CONTEXT          = 0x0001
-    FLAG_DYNAMIC               = 0x0002
-    FLAG_EMBED                 = 0x0004
-    FLAG_NESTING               = 0x0008
+    FLAG_COPY_CONTEXT = 0x0001
+    FLAG_DYNAMIC = 0x0002
+    FLAG_EMBED = 0x0004
+    FLAG_NESTING = 0x0008
 
-    __slots__ = ["name", "conflags"]
-    def __init__(self, name, flags = 0):
+    __slots__ = ("name", "conflags")
+
+    def __init__(self, str name, int flags=0):
         if name is not None:
-            if not isinstance(name, six.string_types):
+            if not isinstance(name, string_types):
                 raise TypeError("name must be a string or None", name)
             if name == "_" or name.startswith("<"):
                 raise ValueError("reserved name", name)
+
         self.name = name
         self.conflags = flags
 
     def __repr__(self):
         return "%s(%r)" % (self.__class__.__name__, self.name)
 
-    def _set_flag(self, flag):
+    def _set_flag(self, int flag):
         """
         Set the given flag or flags.
 

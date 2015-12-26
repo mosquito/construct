@@ -1,7 +1,7 @@
 # encoding: utf-8
 from cpython cimport bool, int, dict, list, str, tuple, bytes
 
-from .py3compat import b
+from .py3compat import b, string_types
 
 
 def int_to_bin(int number, int width=32):
@@ -37,8 +37,16 @@ def int_to_bin(int number, int width=32):
 
 # heavily optimized for performance
 
+def to_int(x):
+    if isinstance(x, int):
+        return x
+    elif isinstance(x, string_types):
+        return ord(x)
 
-def bin_to_int(bits, bool signed_value=False):
+    raise TypeError("Invalid type: %s" % type(x))
+
+
+def bin_to_int(bytes bits, bool signed_value=False):
     r"""
     Logical opposite of int_to_bin. Both '0' and '\x00' are considered zero,
     and both '1' and '\x01' are considered one. Set sign to True to interpret
@@ -47,7 +55,7 @@ def bin_to_int(bits, bool signed_value=False):
     :param signed_value:
     """
 
-    _bits = b("").join(b("01")[ord(b) & 1] for b in bits)
+    _bits = b("".join(map(lambda x: "01"[to_int(x) & 1], bits)))
 
     if signed_value and _bits[0] == "1":
         _bits = _bits[1:]
@@ -84,7 +92,7 @@ def encode_bin(bytes data):
         :param data:
     """
 
-    return b("").join(CHAR_TO_BIN[ord(ch)] for ch in data)
+    return b("").join(map(lambda x: CHAR_TO_BIN[x], data))
 
 
 def decode_bin(bytes data):
@@ -125,4 +133,4 @@ def swap_bytes(bytes bits, int bytesize=8):
         output[j] = bits[i: i + bytesize]
         i += bytesize
         j -= 1
-    return "".join(output)
+    return b("").join(output)

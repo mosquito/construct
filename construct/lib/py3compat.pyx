@@ -1,5 +1,5 @@
 from python_version cimport PY_MAJOR_VERSION
-from cpython cimport int, str, bool, bytes as cbytes
+from cpython cimport int as cint, str, bool, bytes as cbytes
 
 
 if PY_MAJOR_VERSION < 3:
@@ -12,7 +12,7 @@ else:
     bytes = bytes
 
 
-bchr = lambda i: i
+bchr = lambda i: b(chr(i))
 
 
 if PY_MAJOR_VERSION < 3:
@@ -32,11 +32,14 @@ else:
 string_types = str, bytes
 
 
-def byte2int(cbytes byte):
+def byte2int(byte):
+    if isinstance(byte, int):
+        return byte
+
     return ord(b(byte))
 
 
-def int2byte(int n):
+def int2byte(cint n):
     return b(chr(n))
 
 
@@ -57,4 +60,4 @@ def decodebytes(cbytes b, str encoding):
 
 
 def advance_iterator(it):
-    return it.next()
+    return next(it)

@@ -1,9 +1,5 @@
-from construct.lib.binary import encode_bin, decode_bin
-
-try:
-    bytes
-except NameError:
-    bytes = str
+from cpython cimport bytes
+from .binary import encode_bin, decode_bin
 
 
 class BitStreamReader(object):

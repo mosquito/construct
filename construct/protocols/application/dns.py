@@ -4,7 +4,7 @@ Domain Name System (TCP/IP protocol stack)
 from construct import *
 from construct.protocols.layer3.ipv4 import IpAddressAdapter
 from binascii import unhexlify
-import six
+from construct.lib.py3compat import b
 
 
 class DnsStringAdapter(Adapter):
@@ -51,7 +51,7 @@ query_record = Struct("query_record",
 rdata = Field("rdata", lambda ctx: ctx.rdata_length)
 
 resource_record = Struct("resource_record",
-    CString("name", terminators = six.b("\xc0\x00")),
+    CString("name", terminators = b("\xc0\x00")),
     Padding(1),
     dns_record_type,
     dns_record_class,
@@ -118,9 +118,9 @@ dns = Struct("dns",
 
 
 if __name__ == "__main__":
-    cap1 = unhexlify(six.b("2624010000010000000000000377777706676f6f676c6503636f6d0000010001"))
+    cap1 = unhexlify(b("2624010000010000000000000377777706676f6f676c6503636f6d0000010001"))
     
-    cap2 = unhexlify(six.b(
+    cap2 = unhexlify(b(
     "2624818000010005000600060377777706676f6f676c6503636f6d0000010001c00c00"
     "05000100089065000803777777016cc010c02c0001000100000004000440e9b768c02c"
     "0001000100000004000440e9b793c02c0001000100000004000440e9b763c02c000100"

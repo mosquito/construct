@@ -1,14 +1,9 @@
-from construct.core import Adapter, AdaptationError, Pass
-from construct.lib import int_to_bin, bin_to_int, swap_bytes
-from construct.lib import FlagsContainer, HexString
-from six import BytesIO
-import six
+from cpython cimport bytes
 
-
-try:
-    bytes
-except NameError:
-    bytes = str
+from .core import Adapter, AdaptationError, Pass
+from .lib import int_to_bin, bin_to_int, swap_bytes
+from .lib import FlagsContainer, HexString
+from .lib.py3compat import BytesIO, b
 
 #===============================================================================
 # exceptions
@@ -183,7 +178,7 @@ class StringAdapter(Adapter):
 
     def _decode(self, obj, context):
         if not isinstance(obj, bytes):
-            obj = six.b("").join(obj)
+            obj = b("").join(obj)
         if self.encoding:
             if isinstance(self.encoding, str):
                 obj = obj.decode(self.encoding)
@@ -207,7 +202,7 @@ class PaddedStringAdapter(Adapter):
     """
     __slots__ = ["padchar", "paddir", "trimdir"]
 
-    def __init__(self, subcon, padchar=six.b("\x00"), paddir="right", trimdir="right"):
+    def __init__(self, subcon, padchar=b("\x00"), paddir="right", trimdir="right"):
         if paddir not in ("right", "left", "center"):
             raise ValueError("paddir must be 'right', 'left' or 'center'", paddir)
         if trimdir not in ("right", "left"):
@@ -272,7 +267,7 @@ class CStringAdapter(StringAdapter):
     """
     __slots__ = ["terminators"]
 
-    def __init__(self, subcon, terminators=six.b("\x00"), encoding=None):
+    def __init__(self, subcon, terminators=b("\x00"), encoding=None):
         StringAdapter.__init__(self, subcon, encoding=encoding)
         self.terminators = terminators
 
@@ -280,7 +275,7 @@ class CStringAdapter(StringAdapter):
         return StringAdapter._encode(self, obj, context) + self.terminators[0:1]
 
     def _decode(self, obj, context):
-        return StringAdapter._decode(self, six.b('').join(obj[:-1]), context)
+        return StringAdapter._decode(self, b('').join(obj[:-1]), context)
 
 
 class TunnelAdapter(Adapter):
@@ -458,7 +453,7 @@ class PaddingAdapter(Adapter):
     """
     __slots__ = ["pattern", "strict"]
 
-    def __init__(self, subcon, pattern=six.b("\x00"), strict=False):
+    def __init__(self, subcon, pattern=b("\x00"), strict=False):
         Adapter.__init__(self, subcon)
         self.pattern = pattern
         self.strict = strict

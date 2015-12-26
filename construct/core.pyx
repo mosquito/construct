@@ -138,7 +138,7 @@ class Construct(object):
 
         self.conflags |= flag
 
-    def _clear_flag(self, flag):
+    def _clear_flag(self, int flag):
         """
         Clear the given flag or flags.
 
@@ -155,7 +155,7 @@ class Construct(object):
         for sc in subcons:
             self._set_flag(sc.conflags)
 
-    def _is_flag(self, flag):
+    def _is_flag(self, int flag):
         """
         Check whether a given flag is set.
 
@@ -183,7 +183,7 @@ class Construct(object):
                 attrs[name] = getattr(self, name)
         return attrs
 
-    def __setstate__(self, attrs):
+    def __setstate__(self, dict attrs):
         """
         Set this construct's state to a given state.
         """
@@ -196,7 +196,7 @@ class Construct(object):
         self2.__setstate__(self, self.__getstate__())
         return self2
 
-    def parse(self, data):
+    def parse(self, bytes data):
         """
         Parse an in-memory buffer.
 
@@ -272,6 +272,7 @@ class Construct(object):
 
         raise SizeofError("Raw Constructs have no size!")
 
+
 class Subconstruct(Construct):
     """
     Abstract subconstruct (wraps an inner construct, inheriting its
@@ -282,16 +283,21 @@ class Subconstruct(Construct):
     :param subcon: the construct to wrap
     """
 
-    __slots__ = ["subcon"]
+    __slots__ = ("subcon",)
+
     def __init__(self, subcon):
         Construct.__init__(self, subcon.name, subcon.conflags)
         self.subcon = subcon
+
     def _parse(self, stream, context):
         return self.subcon._parse(stream, context)
+
     def _build(self, obj, stream, context):
         self.subcon._build(obj, stream, context)
+
     def _sizeof(self, context):
         return self.subcon._sizeof(context)
+
 
 class Adapter(Subconstruct):
     """
@@ -302,13 +308,16 @@ class Adapter(Subconstruct):
     :param subcon: the construct to wrap
     """
 
-    __slots__ = []
+    __slots__ = ()
     def _parse(self, stream, context):
         return self._decode(self.subcon._parse(stream, context), context)
+
     def _build(self, obj, stream, context):
         self.subcon._build(self._encode(obj, context), stream, context)
+
     def _decode(self, obj, context):
         raise NotImplementedError()
+
     def _encode(self, obj, context):
         raise NotImplementedError()
 
@@ -331,6 +340,7 @@ def _write_stream(stream, length, data):
         raise FieldError("expected %d, found %d" % (length, len(data)))
     stream.write(data)
 
+
 class StaticField(Construct):
     """
     A fixed-size byte field.
@@ -339,7 +349,7 @@ class StaticField(Construct):
     :param length: number of bytes in the field
     """
 
-    __slots__ = ["length"]
+    __slots__ = ("length",)
     def __init__(self, name, length):
         Construct.__init__(self, name)
         self.length = length
@@ -349,6 +359,7 @@ class StaticField(Construct):
         _write_stream(stream, self.length, bchr(obj) if isinstance(obj, int) else obj)
     def _sizeof(self, context):
         return self.length
+
 
 class FormatField(StaticField):
     """
@@ -361,11 +372,11 @@ class FormatField(StaticField):
     :param format: a single format character
     """
 
-    __slots__ = ["packer"]
+    __slots__ = ("packer",)
     def __init__(self, name, endianity, format):
         if endianity not in (">", "<", "="):
             raise ValueError("endianity must be be '=', '<', or '>'",
-                endianity)
+                             endianity)
         if len(format) != 1:
             raise ValueError("must specify one and only one format char")
         self.packer = Packer(endianity + format)
@@ -388,6 +399,7 @@ class FormatField(StaticField):
         except Exception:
             raise FieldError(sys.exc_info()[1])
 
+
 class MetaField(Construct):
     r"""
     A variable-length field. The length is obtained at runtime from a
@@ -408,15 +420,19 @@ class MetaField(Construct):
         Container(data = 'ABCD', length = 4)
     """
 
-    __slots__ = ["lengthfunc"]
+    __slots__ = ("lengthfunc",)
+
     def __init__(self, name, lengthfunc):
         Construct.__init__(self, name)
         self.lengthfunc = lengthfunc
         self._set_flag(self.FLAG_DYNAMIC)
+
     def _parse(self, stream, context):
         return _read_stream(stream, self.lengthfunc(context))
+
     def _build(self, obj, stream, context):
         _write_stream(stream, self.lengthfunc(context), obj)
+
     def _sizeof(self, context):
         return self.lengthfunc(context)
 
@@ -441,7 +457,7 @@ class MetaArray(Subconstruct):
 
         MetaArray(lambda ctx: 5, UBInt8("foo"))
     """
-    __slots__ = ["countfunc"]
+    __slots__ = ("countfunc",)
     def __init__(self, countfunc, subcon):
         Subconstruct.__init__(self, subcon)
         self.countfunc = countfunc
@@ -477,6 +493,7 @@ class MetaArray(Subconstruct):
                 self.subcon._build(subobj, stream, context)
     def _sizeof(self, context):
         return self.subcon._sizeof(context) * self.countfunc(context)
+
 
 class Range(Subconstruct):
     r"""
@@ -526,7 +543,7 @@ class Range(Subconstruct):
         construct.core.RangeError: expected 3..7, found 8
     """
 
-    __slots__ = ["mincount", "maxcout"]
+    __slots__ = ("mincount", "maxcout",)
     def __init__(self, mincount, maxcout, subcon):
         Subconstruct.__init__(self, subcon)
         self.mincount = mincount
@@ -550,13 +567,13 @@ class Range(Subconstruct):
         except ConstructError:
             if c < self.mincount:
                 raise RangeError("expected %d to %d, found %d" %
-                    (self.mincount, self.maxcout, c), sys.exc_info()[1])
+                                 (self.mincount, self.maxcout, c), sys.exc_info()[1])
             stream.seek(pos)
         return obj
     def _build(self, obj, stream, context):
         if len(obj) < self.mincount or len(obj) > self.maxcout:
             raise RangeError("expected %d to %d, found %d" %
-                (self.mincount, self.maxcout, len(obj)))
+                             (self.mincount, self.maxcout, len(obj)))
         cnt = 0
         try:
             if self.subcon.conflags & self.FLAG_COPY_CONTEXT:
@@ -574,9 +591,10 @@ class Range(Subconstruct):
         except ConstructError:
             if cnt < self.mincount:
                 raise RangeError("expected %d to %d, found %d" %
-                    (self.mincount, self.maxcout, len(obj)), sys.exc_info()[1])
+                                 (self.mincount, self.maxcout, len(obj)), sys.exc_info()[1])
     def _sizeof(self, context):
         raise SizeofError("can't calculate size")
+
 
 class RepeatUntil(Subconstruct):
     r"""
@@ -595,7 +613,7 @@ class RepeatUntil(Subconstruct):
             Field("chars", 1)
         )
     """
-    __slots__ = ["predicate"]
+    __slots__ = ("predicate",)
     def __init__(self, predicate, subcon):
         Subconstruct.__init__(self, subcon)
         self.predicate = predicate
@@ -665,7 +683,9 @@ class Struct(Construct):
             UBInt8("third_element"),
         )
     """
-    __slots__ = ["subcons", "nested", "allow_overwrite"]
+
+    __slots__ = ("subcons", "nested", "allow_overwrite")
+
     def __init__(self, name, *subcons, **kw):
         self.nested = kw.pop("nested", True)
         self.allow_overwrite = kw.pop("allow_overwrite", False)
@@ -675,6 +695,7 @@ class Struct(Construct):
         self.subcons = subcons
         self._inherit_flags(*subcons)
         self._clear_flag(self.FLAG_EMBED)
+
     def _parse(self, stream, context):
         if "<obj>" in context:
             obj = context["<obj>"]
@@ -682,7 +703,7 @@ class Struct(Construct):
         else:
             obj = Container()
             if self.nested:
-                context = Container(_ = context)
+                context = Container(_=context)
         for sc in self.subcons:
             if sc.conflags & self.FLAG_EMBED:
                 context["<obj>"] = obj
@@ -695,11 +716,12 @@ class Struct(Construct):
                     obj[sc.name] = subobj
                     context[sc.name] = subobj
         return obj
+
     def _build(self, obj, stream, context):
         if "<unnested>" in context:
             del context["<unnested>"]
         elif self.nested:
-            context = Container(_ = context)
+            context = Container(_=context)
         for sc in self.subcons:
             if sc.conflags & self.FLAG_EMBED:
                 context["<unnested>"] = True
@@ -710,10 +732,12 @@ class Struct(Construct):
                 subobj = getattr(obj, sc.name)
                 context[sc.name] = subobj
             sc._build(subobj, stream, context)
+
     def _sizeof(self, context):
         #if self.nested:
         #    context = Container(_ = context)
         return sum(sc._sizeof(context) for sc in self.subcons)
+
 
 class Sequence(Struct):
     """
@@ -737,7 +761,7 @@ class Sequence(Struct):
             UBInt8("third_element"),
         )
     """
-    __slots__ = []
+    __slots__ = ()
     def _parse(self, stream, context):
         if "<obj>" in context:
             obj = context["<obj>"]
@@ -745,7 +769,7 @@ class Sequence(Struct):
         else:
             obj = ListContainer()
             if self.nested:
-                context = Container(_ = context)
+                context = Container(_=context)
         for sc in self.subcons:
             if sc.conflags & self.FLAG_EMBED:
                 context["<obj>"] = obj
@@ -760,7 +784,7 @@ class Sequence(Struct):
         if "<unnested>" in context:
             del context["<unnested>"]
         elif self.nested:
-            context = Container(_ = context)
+            context = Container(_=context)
         objiter = iter(obj)
         for sc in self.subcons:
             if sc.conflags & self.FLAG_EMBED:
@@ -772,6 +796,7 @@ class Sequence(Struct):
                 subobj = advance_iterator(objiter)
                 context[sc.name] = subobj
             sc._build(subobj, stream, context)
+
 
 class Union(Construct):
     """
@@ -796,12 +821,12 @@ class Union(Construct):
             ),
         )
     """
-    __slots__ = ["parser", "builder"]
+    __slots__ = ("parser", "builder",)
     def __init__(self, name, master, *subcons, **kw):
         Construct.__init__(self, name)
         args = [Peek(sc) for sc in subcons]
         args.append(MetaField(None, lambda ctx: master._sizeof(ctx)))
-        self.parser = Struct(name, Peek(master, perform_build = True), *args)
+        self.parser = Struct(name, Peek(master, perform_build=True), *args)
         self.builder = Struct(name, master)
     def _parse(self, stream, context):
         return self.parser._parse(stream, context)
@@ -809,6 +834,7 @@ class Union(Construct):
         return self.builder._build(obj, stream, context)
     def _sizeof(self, context):
         return self.builder._sizeof(context)
+
 
 #===============================================================================
 # conditional
@@ -853,9 +879,10 @@ class Switch(Construct):
             raise SwitchError("no default case defined")
         def _sizeof(self, context):
             raise SwitchError("no default case defined")
+
     NoDefault = NoDefault("No default value specified")
 
-    __slots__ = ["subcons", "keyfunc", "cases", "default", "include_key"]
+    __slots__ = ("subcons", "keyfunc", "cases", "default", "include_key",)
 
     def __init__(self, name, keyfunc, cases, default = NoDefault,
                  include_key = False):
@@ -885,6 +912,7 @@ class Switch(Construct):
         case = self.cases.get(self.keyfunc(context), self.default)
         return case._sizeof(context)
 
+
 class Select(Construct):
     """
     Selects the first matching subconstruct. It will literally try each of
@@ -907,17 +935,19 @@ class Select(Construct):
             UBInt8("tiny"),
         )
     """
-    __slots__ = ["subcons", "include_name"]
+    __slots__ = ("subcons", "include_name")
+    
     def __init__(self, name, *subcons, **kw):
         include_name = kw.pop("include_name", False)
         if kw:
             raise TypeError("the only keyword argument accepted "
-                "is 'include_name'", kw)
+                            "is 'include_name'", kw)
         Construct.__init__(self, name)
         self.subcons = subcons
         self.include_name = include_name
         self._inherit_flags(*subcons)
         self._set_flag(self.FLAG_DYNAMIC)
+        
     def _parse(self, stream, context):
         for sc in self.subcons:
             pos = stream.tell()
@@ -933,6 +963,7 @@ class Select(Construct):
                 else:
                     return obj
         raise SelectError("no subconstruct matched")
+    
     def _build(self, obj, stream, context):
         if self.include_name:
             name, obj = obj
@@ -953,6 +984,7 @@ class Select(Construct):
                     stream.write(stream2.getvalue())
                     return
         raise SelectError("no subconstruct matched", obj)
+
     def _sizeof(self, context):
         raise SizeofError("can't calculate size")
 
@@ -984,10 +1016,12 @@ class Pointer(Subconstruct):
             )
         )
     """
-    __slots__ = ["offsetfunc"]
+    __slots__ = ("offsetfunc",)
+
     def __init__(self, offsetfunc, subcon):
         Subconstruct.__init__(self, subcon)
         self.offsetfunc = offsetfunc
+
     def _parse(self, stream, context):
         newpos = self.offsetfunc(context)
         origpos = stream.tell()
@@ -995,14 +1029,17 @@ class Pointer(Subconstruct):
         obj = self.subcon._parse(stream, context)
         stream.seek(origpos)
         return obj
+
     def _build(self, obj, stream, context):
         newpos = self.offsetfunc(context)
         origpos = stream.tell()
         stream.seek(newpos, 2 if newpos < 0 else 0)
         self.subcon._build(obj, stream, context)
         stream.seek(origpos)
+
     def _sizeof(self, context):
         return 0
+
 
 class Peek(Subconstruct):
     """
@@ -1020,7 +1057,9 @@ class Peek(Subconstruct):
 
         Peek(UBInt8("foo"))
     """
-    __slots__ = ["perform_build"]
+
+    __slots__ = ("perform_build",)
+
     def __init__(self, subcon, perform_build = False):
         Subconstruct.__init__(self, subcon)
         self.perform_build = perform_build
@@ -1037,6 +1076,7 @@ class Peek(Subconstruct):
             self.subcon._build(obj, stream, context)
     def _sizeof(self, context):
         return 0
+
 
 class OnDemand(Subconstruct):
     """
@@ -1062,7 +1102,8 @@ class OnDemand(Subconstruct):
 
         OnDemand(Array(10000, UBInt8("foo"))
     """
-    __slots__ = ["advance_stream", "force_build"]
+    __slots__ = ("advance_stream", "force_build")
+
     def __init__(self, subcon, advance_stream = True, force_build = True):
         Subconstruct.__init__(self, subcon)
         self.advance_stream = advance_stream
@@ -1079,6 +1120,7 @@ class OnDemand(Subconstruct):
             self.subcon._build(obj.value, stream, context)
         elif self.advance_stream:
             stream.seek(self.subcon._sizeof(context), 1)
+
 
 class Buffered(Subconstruct):
     """
@@ -1105,16 +1147,19 @@ class Buffered(Subconstruct):
             resizer = lambda size: size / 8,
         )
     """
-    __slots__ = ["encoder", "decoder", "resizer"]
+    __slots__ = ("encoder", "decoder", "resizer")
+
     def __init__(self, subcon, decoder, encoder, resizer):
         Subconstruct.__init__(self, subcon)
         self.encoder = encoder
         self.decoder = decoder
         self.resizer = resizer
+
     def _parse(self, stream, context):
         data = _read_stream(stream, self._sizeof(context))
         stream2 = BytesIO(self.decoder(data))
         return self.subcon._parse(stream2, context)
+
     def _build(self, obj, stream, context):
         size = self._sizeof(context)
         stream2 = BytesIO()
@@ -1122,8 +1167,10 @@ class Buffered(Subconstruct):
         data = self.encoder(stream2.getvalue())
         assert len(data) == size
         _write_stream(stream, self._sizeof(context), data)
+
     def _sizeof(self, context):
         return self.resizer(self.subcon._sizeof(context))
+
 
 class Restream(Subconstruct):
     """
@@ -1155,21 +1202,25 @@ class Restream(Subconstruct):
             resizer = lambda size: size / 8,
         )
     """
-    __slots__ = ["stream_reader", "stream_writer", "resizer"]
+    __slots__ = ("stream_reader", "stream_writer", "resizer")
+
     def __init__(self, subcon, stream_reader, stream_writer, resizer):
         Subconstruct.__init__(self, subcon)
         self.stream_reader = stream_reader
         self.stream_writer = stream_writer
         self.resizer = resizer
+
     def _parse(self, stream, context):
         stream2 = self.stream_reader(stream)
         obj = self.subcon._parse(stream2, context)
         stream2.close()
         return obj
+
     def _build(self, obj, stream, context):
         stream2 = self.stream_writer(stream)
         self.subcon._build(obj, stream2, context)
         stream2.close()
+
     def _sizeof(self, context):
         return self.resizer(self.subcon._sizeof(context))
 
@@ -1191,12 +1242,13 @@ class Reconfig(Subconstruct):
 
         Reconfig("foo", UBInt8("bar"))
     """
-    __slots__ = []
+    __slots__ = ()
     def __init__(self, name, subcon, setflags = 0, clearflags = 0):
         Construct.__init__(self, name, subcon.conflags)
         self.subcon = subcon
         self._set_flag(setflags)
         self._clear_flag(clearflags)
+
 
 class Anchor(Construct):
     """
@@ -1218,13 +1270,14 @@ class Anchor(Construct):
     .. seealso:: :func:`Pointer`
     """
 
-    __slots__ = []
+    __slots__ = ()
     def _parse(self, stream, context):
         return stream.tell()
     def _build(self, obj, stream, context):
         context[self.name] = stream.tell()
     def _sizeof(self, context):
         return 0
+
 
 class Value(Construct):
     """
@@ -1241,7 +1294,7 @@ class Value(Construct):
             Value("total_pixels", lambda ctx: ctx.width * ctx.height),
         )
     """
-    __slots__ = ["func"]
+    __slots__ = ("func",)
     def __init__(self, name, func):
         Construct.__init__(self, name)
         self.func = func
@@ -1252,6 +1305,7 @@ class Value(Construct):
         context[self.name] = self.func(context)
     def _sizeof(self, context):
         return 0
+
 
 #class Dynamic(Construct):
 #    """
@@ -1276,7 +1330,7 @@ class Value(Construct):
 #        Dynamic("spam", factory),
 #    )
 #    """
-#    __slots__ = ["factoryfunc"]
+#    __slots__ = ("factoryfunc",)
 #    def __init__(self, name, factoryfunc):
 #        Construct.__init__(self, name, self.FLAG_COPY_CONTEXT)
 #        self.factoryfunc = factoryfunc
@@ -1303,7 +1357,7 @@ class LazyBound(Construct):
             LazyBound("next", lambda: foo),
         )
     """
-    __slots__ = ["bindfunc", "bound"]
+    __slots__ = ("bindfunc", "bound",)
     def __init__(self, name, bindfunc):
         Construct.__init__(self, name)
         self.bound = None
@@ -1321,6 +1375,7 @@ class LazyBound(Construct):
             self.bound = self.bindfunc()
         return self.bound._sizeof(context)
 
+
 class Pass(Construct):
     """
     A do-nothing construct, useful as the default case for Switch, or
@@ -1334,13 +1389,14 @@ class Pass(Construct):
 
         Pass
     """
-    __slots__ = []
+    __slots__ = ()
     def _parse(self, stream, context):
         pass
     def _build(self, obj, stream, context):
         assert obj is None
     def _sizeof(self, context):
         return 0
+
 
 Pass = Pass(None)
 """
@@ -1356,6 +1412,7 @@ Example::
     Pass
 """
 
+
 class Terminator(Construct):
     """
     Asserts the end of the stream has been reached at the point it's placed.
@@ -1369,14 +1426,18 @@ class Terminator(Construct):
 
         Terminator
     """
-    __slots__ = []
+    __slots__ = ()
+
     def _parse(self, stream, context):
         if stream.read(1):
             raise TerminatorError("expected end of stream")
+
     def _build(self, obj, stream, context):
         assert obj is None
+
     def _sizeof(self, context):
         return 0
+
 
 Terminator = Terminator(None)
 """
@@ -1392,6 +1453,7 @@ Example::
     Terminator
 """
 
+
 #=======================================================================================================================
 # Extra
 #=======================================================================================================================
@@ -1401,17 +1463,21 @@ class ULInt24(StaticField):
     A better implementation would be writing a more flexable version of FormatField,
     rather then specifically implementing it for this case
     """
-    __slots__ = ["packer"]
+    __slots__ = ("packer",)
+
     def __init__(self, name):
         self.packer = Packer("<BH")
         StaticField.__init__(self, name, self.packer.size)
+
     def __getstate__(self):
         attrs = StaticField.__getstate__(self)
         attrs["packer"] = attrs["packer"].format
         return attrs
+
     def __setstate__(self, attrs):
         attrs["packer"] = Packer(attrs["packer"])
         return StaticField.__setstate__(self, attrs)
+
     def _parse(self, stream, context):
         try:
             vals = self.packer.unpack(_read_stream(stream, self.length))
@@ -1419,14 +1485,11 @@ class ULInt24(StaticField):
         except Exception:
             ex = sys.exc_info()[1]
             raise FieldError(ex)
+
     def _build(self, obj, stream, context):
         try:
-            vals = (obj%256, obj >> 8)
+            vals = (obj % 256, obj >> 8)
             _write_stream(stream, self.length, self.packer.pack(vals))
         except Exception:
             ex = sys.exc_info()[1]
             raise FieldError(ex)
-
-
-
-

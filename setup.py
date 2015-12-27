@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 import os
+from multiprocessing import cpu_count
 from setuptools import setup, Extension
 
 
 HERE = os.path.dirname(__file__)
+
 exec(open(os.path.join(HERE, "construct", "version.py")).read())
+
 
 try:
     from Cython.Build import cythonize
@@ -19,7 +22,8 @@ try:
         Extension("construct.lib.container", ["construct/lib/container.pyx"]),
         Extension("construct.lib.expr", ["construct/lib/expr.pyx"]),
         Extension("construct.lib.hex", ["construct/lib/hex.pyx"]),
-    ], force=True, emit_linenums=True)
+    ], force=True, emit_linenums=True, nthreads=cpu_count() * 2)
+
 except ImportError:
     extensions = [
         Extension("construct.lib.py3compat", ["construct/lib/py3compat.c"]),
@@ -60,11 +64,15 @@ setup(
     author="Tomer Filiba, Corbin Simpson",
     author_email="tomerfiliba@gmail.com, MostAwesomeDude@gmail.com",
     provides=["construct"],
-    build_requires=['cython'],
     keywords="construct, declarative, data structure, binary, parser, builder, pack, unpack",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.3",
+        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
     ],
 )

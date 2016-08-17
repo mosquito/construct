@@ -117,7 +117,7 @@ def decode_bin(bytes data):
 def swap_bytes(bytes bits, int bytesize=8):
     r"""
     Bits is a b'' object containing a binary representation. Assuming each
-    bytesize bits constitute a bytes, perform a endianness byte swap. Example:
+    byte_size bits constitute a bytes, perform a endianness byte swap. Example:
 
         >>> swap_bytes(b'00011011', 2)
         b'11100100'

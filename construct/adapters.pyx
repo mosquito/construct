@@ -49,15 +49,14 @@ class BitIntegerAdapter(Adapter):
     :param bytesize: number of bits per byte, used for byte-swapping (if swapped).
                      default is 8.
     """
-    __slots__ = ["width", "swapped", "signed", "bytesize"]
+    __slots__ = "width", "swapped", "signed", "byte_size"
 
-    def __init__(self, subcon, width, swapped=False, signed_value=False,
-                 bytesize=8):
+    def __init__(self, subcon, width, swapped=False, signed_value=False, bytesize=8):
         Adapter.__init__(self, subcon)
         self.width = width
         self.swapped = swapped
         self.signed = signed_value
-        self.bytesize = bytesize
+        self.byte_size = bytesize
 
     def _encode(self, obj, context):
         if obj < 0 and not self.signed:
@@ -90,10 +89,9 @@ class MappingAdapter(Adapter):
                        in the encoding mapping. if no object is given, an exception is raised.
                        if ``Pass`` is used, the unmapped object will be passed as-is
     """
-    __slots__ = ["encoding", "decoding", "encdefault", "decdefault"]
+    __slots__ = "encoding", "decoding", "encdefault", "decdefault"
 
-    def __init__(self, subcon, decoding, encoding,
-                 decdefault=NotImplemented, encdefault=NotImplemented):
+    def __init__(self, subcon, decoding, encoding, decdefault=NotImplemented, encdefault=NotImplemented):
         Adapter.__init__(self, subcon)
         self.decoding = decoding
         self.encoding = encoding
@@ -132,7 +130,7 @@ class FlagsAdapter(Adapter):
     :param subcon: the subcon to extract
     :param flags: a dictionary mapping flag-names to their value
     """
-    __slots__ = ["flags"]
+    __slots__ = "flags",
 
     def __init__(self, subcon, flags):
         Adapter.__init__(self, subcon)
@@ -162,7 +160,7 @@ class StringAdapter(Adapter):
     :param encoding: the character encoding name (e.g., "utf8"), or None to
                      return raw bytes (usually 8-bit ASCII).
     """
-    __slots__ = ["encoding"]
+    __slots__ = "encoding",
 
     def __init__(self, subcon, encoding=None):
         Adapter.__init__(self, subcon)
@@ -200,7 +198,7 @@ class PaddedStringAdapter(Adapter):
                     "left"). the default is "right". trimming is only meaningful for
                     building, when the given string is too long.
     """
-    __slots__ = ["padchar", "paddir", "trimdir"]
+    __slots__ = "padchar", "paddir", "trimdir"
 
     def __init__(self, subcon, padchar=b("\x00"), paddir="right", trimdir="right"):
         if paddir not in ("right", "left", "center"):
@@ -246,7 +244,7 @@ class LengthValueAdapter(Adapter):
 
     :param subcon: the subcon returning a length-value pair
     """
-    __slots__ = []
+    __slots__ = ()
 
     def _encode(self, obj, context):
         return (len(obj), obj)
@@ -265,7 +263,7 @@ class CStringAdapter(StringAdapter):
     :param encoding: the character encoding to use (e.g., "utf8"), or None to return raw-bytes.
                      the terminator characters are not affected by the encoding.
     """
-    __slots__ = ["terminators"]
+    __slots__ = "terminators",
 
     def __init__(self, subcon, terminators=b("\x00"), encoding=None):
         StringAdapter.__init__(self, subcon, encoding=encoding)
@@ -302,7 +300,7 @@ class TunnelAdapter(Adapter):
         )
 
     """
-    __slots__ = ["inner_subcon"]
+    __slots__ = "inner_subcon",
 
     def __init__(self, subcon, inner_subcon):
         Adapter.__init__(self, subcon)
@@ -335,7 +333,7 @@ class ExprAdapter(Adapter):
             decoder = lambda obj, ctx: obj * 4,
         )
     """
-    __slots__ = ["_encode", "_decode"]
+    __slots__ = "_encode", "_decode"
 
     def __init__(self, subcon, encoder, decoder):
         Adapter.__init__(self, subcon)
@@ -348,7 +346,7 @@ class HexDumpAdapter(Adapter):
     """
     Adapter for hex-dumping strings. It returns a HexString, which is a string
     """
-    __slots__ = ["linesize"]
+    __slots__ = "linesize",
 
     def __init__(self, subcon, linesize=16):
         Adapter.__init__(self, subcon)
@@ -374,7 +372,7 @@ class ConstAdapter(Adapter):
 
         Const(Field("signature", 2), "MZ")
     """
-    __slots__ = ["value"]
+    __slots__ = "value",
 
     def __init__(self, subcon, value):
         Adapter.__init__(self, subcon)
@@ -402,7 +400,7 @@ class SlicingAdapter(Adapter):
     :param stop: stop index (or None for up-to-end)
     :param step: step (or None for every element)
     """
-    __slots__ = ["start", "stop", "step"]
+    __slots__ = "start", "stop", "step"
 
     def __init__(self, subcon, start, stop=None):
         Adapter.__init__(self, subcon)
@@ -426,7 +424,7 @@ class IndexingAdapter(Adapter):
     :param subcon: the subcon to index
     :param index: the index of the list to get
     """
-    __slots__ = ["index"]
+    __slots__ = "index",
 
     def __init__(self, subcon, index):
         Adapter.__init__(self, subcon)
@@ -451,7 +449,7 @@ class PaddingAdapter(Adapter):
     :param strict: whether or not to verify, during parsing, that the given
                    padding matches the padding pattern. default is False (unstrict)
     """
-    __slots__ = ["pattern", "strict"]
+    __slots__ = "pattern", "strict"
 
     def __init__(self, subcon, pattern=b("\x00"), strict=False):
         Adapter.__init__(self, subcon)
@@ -480,7 +478,7 @@ class Validator(Adapter):
 
     :param subcon: the subcon to validate
     """
-    __slots__ = []
+    __slots__ = ()
 
     def _decode(self, obj, context):
         if not self._validate(obj, context):
@@ -518,7 +516,7 @@ class OneOf(Validator):
             ...
         construct.core.ValidationError: ('invalid object', 9)
     """
-    __slots__ = ["valids"]
+    __slots__ = "valids",
 
     def __init__(self, subcon, valids):
         Validator.__init__(self, subcon)
@@ -545,7 +543,7 @@ class NoneOf(Validator):
             ...
         construct.core.ValidationError: ('invalid object', 6)
     """
-    __slots__ = ["invalids"]
+    __slots__ = "invalids",
 
     def __init__(self, subcon, invalids):
         Validator.__init__(self, subcon)
